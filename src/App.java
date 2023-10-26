@@ -3,15 +3,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class App {
-    // 네이버 로그인하는 예제
     private WebDriver driver;
     
     private String url;
     
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-    public static String WEB_DRIVER_PATH = "E:/workspace/Selenium/chromedriver-win64/chromedriver.exe";
+    public static String WEB_DRIVER_PATH = "C:/Park/JAVA/Selenium_EX/CheckReservateion/chromedriver-win64/chromedriver.exe";
     
     public App(){
         // WebDriver 경로 설정
@@ -41,6 +42,8 @@ public class App {
             // 달력 날짜 선택
             for(int week = 2; week<=7; week++){
                 for(int day = 1; day<=7; day++){
+                    // 날짜 특정
+                    if(week!=6 || day!=2) continue;
                     try{
                         element_day = driver.findElement(By.xpath("/html/body/div[3]/div/div/div/div/div[4]/dl[2]/dd/div/div/div/table/tbody/tr["+week+"]/td["+day+"]/a"));
                         element_day.click();
@@ -50,7 +53,7 @@ public class App {
                         continue;
                     }                    
 
-                    int idx_theme = 1;
+                    int idx_theme = 3;
                     while(true){
                         try{
                             element_theme = null;
@@ -90,6 +93,13 @@ public class App {
     }
     public static void main(String[] args) throws Exception {
         App app = new App();
-        app.activateBot();
+        Timer scheduler = new Timer();
+        TimerTask task = new TimerTask(){
+            @Override
+            public void run() {
+                app.activateBot();
+            }
+        };
+        scheduler.scheduleAtFixedRate(task, 1000, 20000);
     }
 }
