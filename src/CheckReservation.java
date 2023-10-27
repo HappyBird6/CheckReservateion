@@ -3,18 +3,22 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class App {
+public class CheckReservation {
     private WebDriver driver;
-    
+    int count = 0;
     private String url;
     
+    private Set<String> mailedTime = new HashSet<>();
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
     public static String WEB_DRIVER_PATH = "C:/Park/JAVA/Selenium_EX/CheckReservateion/chromedriver-win64/chromedriver.exe";
-    
-    public App(){
+        
+    public CheckReservation(){
         // WebDriver 경로 설정
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         // WebDriver 옵션 설정
@@ -27,6 +31,7 @@ public class App {
         url = "https://www.keyescape.co.kr/web/home.php?go=rev.make";
     }
     public void activateBot(){
+        count++;
         WebElement element_jijum = null;
         WebElement element_day = null;
         WebElement element_theme = null;
@@ -53,7 +58,7 @@ public class App {
                         continue;
                     }                    
 
-                    int idx_theme = 3;
+                    int idx_theme = 3;// default : 1 
                     while(true){
                         try{
                             element_theme = null;
@@ -61,13 +66,20 @@ public class App {
                             element_theme.click();
                             Thread.sleep(3000);
                             System.out.println(element_theme.getText());
+                            
                             int idx_time = 1;
                             while(true){
                                 try{
                                     element_time_info=null;
                                     element_time_info =                      
                                         driver.findElement(By.xpath("/html/body/div[3]/div/div/div/div/div[4]/dl[4]/dd/div/ul/a["+idx_time+"]/li"));
+                                    //System.out.println(element_time_info.getText());
+                                    String time = element_time_info.getText();
+                                    if(mailedTime.contains(time)) continue;
                                     System.out.println(element_time_info.getText());
+                                    // new SMTP().sendMail("toEmail", element_theme.getText(), element_theme.getText(), time);
+                                    System.out.println("메일 전송");
+                                    mailedTime.add(time);
                                 }catch(Exception e2){
                                     System.out.println("    --- 남는 시간 없음");
                                     break;
@@ -89,10 +101,11 @@ public class App {
         }finally{
             //driver.close();
             // 브라우저 종료
+            System.out.println("count : "+count);
         }
     }
     public static void main(String[] args) throws Exception {
-        App app = new App();
+        CheckReservation app = new CheckReservation();
         Timer scheduler = new Timer();
         TimerTask task = new TimerTask(){
             @Override
@@ -100,6 +113,6 @@ public class App {
                 app.activateBot();
             }
         };
-        scheduler.scheduleAtFixedRate(task, 1000, 20000);
+        scheduler.scheduleAtFixedRate(task, 1000, 30000);
     }
 }
